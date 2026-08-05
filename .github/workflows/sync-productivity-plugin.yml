@@ -1,0 +1,65 @@
+name: Sync Productivity Codex Plugin
+
+on:
+  schedule:
+    - cron: "17 0 * * 1"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sync productivity skills and version
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob dotglob
+
+          skill_dirs=(skills/productivity/*/)
+          if ((${#skill_dirs[@]} == 0)); then
+            echo "No skill directories found under skills/productivity." >&2
+            exit 1
+          fi
+
+          rm -rf plugins/productivity/skills
+          mkdir -p plugins/productivity/skills
+          cp -a "${skill_dirs[@]}" plugins/productivity/skills/
+
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from "node:fs";
+
+          const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+          const manifestPath = "plugins/productivity/.codex-plugin/plugin.json";
+          const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+
+          manifest.version = packageJson.version;
+          writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+          NODE
+
+      - name: Commit synchronized plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "$(git status --porcelain -- plugins/productivity)" ]; then
+            echo "Productivity plugin is already synchronized."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all -- plugins/productivity
+          git commit -m "chore: sync productivity Codex plugin"
+          git push origin HEAD:master

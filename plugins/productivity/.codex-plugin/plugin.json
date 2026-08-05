@@ -1,0 +1,29 @@
+{
+  "name": "productivity",
+  "version": "1.2.2",
+  "description": "Matt PocockのProductivity Agent SkillsをCodexで利用するためのプラグインです。",
+  "author": {
+    "name": "masatoh-array",
+    "url": "https://github.com/masatoh-array"
+  },
+  "repository": "https://github.com/masatoh-array/mattpocock-skills-plugin",
+  "homepage": "https://github.com/mattpocock/skills",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Matt Pocock Productivity Skills",
+    "shortDescription": "Matt Pocockの生産性向上スキルをCodexで利用できます。",
+    "longDescription": "要件を質問で掘り下げ、作業を引き継ぎ、学習内容を整理するためのMatt Pocock製Productivity Agent Skills 7件をCodex向けに提供します。",
+    "developerName": "masatoh-array",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "grill-meを使って、この設計案の不明点を質問してください。",
+      "handoffを使って、現在の作業を次のエージェント向けに引き継いでください。",
+      "teachを使って、このテーマを段階的に教えてください。"
+    ]
+  }
+}
