@@ -1,6 +1,6 @@
 {
   "name": "productivity",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Matt PocockのProductivity Agent SkillsをCodexで利用するためのプラグインです。",
   "author": {
     "name": "masatoh-array",
