@@ -1,0 +1,21 @@
+{
+  "name": "mattpocock-skills-plugin",
+  "owner": {
+    "name": "masatoh-array"
+  },
+  "metadata": {
+    "description": "Matt PocockのProductivityおよびEngineering Agent SkillsをCursor向けに提供します。"
+  },
+  "plugins": [
+    {
+      "name": "productivity",
+      "source": "plugins/productivity",
+      "description": "要件の掘り下げ、引き継ぎ、学習を支援するProductivity Agent Skillsです。"
+    },
+    {
+      "name": "engineering",
+      "source": "plugins/engineering",
+      "description": "設計、実装、TDD、デバッグ、レビューを支援するEngineering Agent Skillsです。"
+    }
+  ]
+}

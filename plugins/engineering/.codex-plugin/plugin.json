@@ -1,0 +1,29 @@
+{
+  "name": "engineering",
+  "version": "1.2.3",
+  "description": "Matt PocockのEngineering Agent SkillsをCodexで利用するためのプラグインです。",
+  "author": {
+    "name": "masatoh-array",
+    "url": "https://github.com/masatoh-array"
+  },
+  "repository": "https://github.com/masatoh-array/mattpocock-skills-plugin",
+  "homepage": "https://github.com/mattpocock/skills",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Matt Pocock Engineering Skills",
+    "shortDescription": "Matt Pocockのソフトウェア開発スキルをCodexで利用できます。",
+    "longDescription": "設計、実装、TDD、デバッグ、レビューを支援するMatt Pocock製Engineering Agent Skills 18件をCodex向けに提供します。",
+    "developerName": "masatoh-array",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "ask-mattを使って、この作業に適した進め方を選んでください。",
+      "implementを使って、この仕様を実装してください。",
+      "diagnosing-bugsを使って、この不具合を調査してください。"
+    ]
+  }
+}

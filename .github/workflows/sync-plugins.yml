@@ -1,0 +1,104 @@
+name: Sync Codex and Cursor Plugins
+
+on:
+  schedule:
+    - cron: "17 0 * * 1"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sync skills and versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob dotglob
+
+          buckets=(productivity engineering)
+          for bucket in "${buckets[@]}"; do
+            skill_dirs=("skills/${bucket}"/*/)
+            if ((${#skill_dirs[@]} == 0)); then
+              echo "No skill directories found under skills/${bucket}." >&2
+              exit 1
+            fi
+            for skill_dir in "${skill_dirs[@]}"; do
+              if [ ! -f "${skill_dir}SKILL.md" ]; then
+                echo "Missing SKILL.md under ${skill_dir}." >&2
+                exit 1
+              fi
+              if [ ! -f "${skill_dir}agents/openai.yaml" ]; then
+                echo "Missing agents/openai.yaml under ${skill_dir}." >&2
+                exit 1
+              fi
+            done
+          done
+
+          for bucket in "${buckets[@]}"; do
+            skill_dirs=("skills/${bucket}"/*/)
+            rm -rf "plugins/${bucket}/skills"
+            mkdir -p "plugins/${bucket}/skills"
+            cp -a "${skill_dirs[@]}" "plugins/${bucket}/skills/"
+          done
+
+          node --input-type=module <<'NODE'
+          import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+
+          for (const bucket of ["productivity", "engineering"]) {
+            const skillsRoot = `plugins/${bucket}/skills`;
+            const prefix = `matt: ${bucket}: `;
+
+            for (const entry of readdirSync(skillsRoot, { withFileTypes: true })) {
+              if (!entry.isDirectory()) {
+                continue;
+              }
+
+              const metadataPath = `${skillsRoot}/${entry.name}/agents/openai.yaml`;
+              const source = readFileSync(metadataPath, "utf8");
+              const pattern = /^(\s*display_name:\s*")([^"]+)("\s*)$/m;
+              const match = source.match(pattern);
+
+              if (!match) {
+                throw new Error(`Missing display_name in ${metadataPath}`);
+              }
+
+              const displayName = match[2].startsWith(prefix)
+                ? match[2]
+                : `${prefix}${match[2]}`;
+              writeFileSync(
+                metadataPath,
+                source.replace(pattern, `$1${displayName}$3`),
+              );
+            }
+          }
+          NODE
+
+          node scripts/sync-plugin-version.mjs
+
+      - name: Commit synchronized plugins
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "$(git status --porcelain -- .claude-plugin/plugin.json plugins/productivity plugins/engineering)" ]; then
+            echo "Plugin artifacts are already synchronized."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all -- .claude-plugin/plugin.json plugins/productivity plugins/engineering
+          git commit -m "chore: sync Codex and Cursor plugins"
+          git push origin HEAD:master
