@@ -8,7 +8,6 @@ fork元との同期を継続しやすくするため、fork固有の変更では
 
 各Pluginの `skills` はPluginルート直下の `skills/` に解決します。
 そのため、`skills/productivity` と `skills/engineering` を正本とし、GitHub Actionsで対応する `plugins/<bucket>/skills` へ複製します。
-複製後、Plugin内の各 `agents/openai.yaml` の `display_name` だけに `matt: <bucket>: ` prefixを付けます。
 Codexの構造は[OpenAI公式のPlugin validation仕様](https://developers.openai.com/plugins/deploy/submission-errors#plugin-content-errors)、Cursorの構造は[Cursor公式のPlugins reference](https://cursor.com/docs/reference/plugins)に従います。
 
 このforkでは、次のファイルをPlugin配布用に管理します。
@@ -17,7 +16,7 @@ Codexの構造は[OpenAI公式のPlugin validation仕様](https://developers.ope
 - `.cursor-plugin/marketplace.json`：Cursor Marketplace定義
 - `plugins/productivity`：Productivity Plugin manifestと生成ミラー
 - `plugins/engineering`：Engineering Plugin manifestと生成ミラー
-- `.github/workflows/sync-plugins.yml`：2つの生成ミラーと4つのmanifest versionを同期するworkflow
+- `.github/workflows/sync-plugins.yml`：2つの生成ミラーとCodex manifestのversionを同期するworkflow
 - `CODEX_PLUGIN.md`：導入方法と同期手順
 
 `plugins/productivity/skills` と `plugins/engineering/skills` は生成物のため、手編集しないでください。
@@ -57,11 +56,10 @@ fork元の更新とPlugin生成は別の処理です。
 3. GitHub Actionsの `Sync Codex and Cursor Plugins` を手動実行するか、次回の週次実行を待ちます。
 4. workflowの実行結果と、必要に応じて作成された同期commitを確認します。
 
-workflowは両skillバケット直下の全ディレクトリについて、`SKILL.md` と `agents/openai.yaml` の存在を確認してから、対応するPluginの `skills/` へ複製します。
-その後、Plugin側の `display_name` にbucket別prefixを付けます。
-また、4つのCodex/Cursor manifestのversionを `package.json` に合わせます。
+workflowは両skillバケット直下の全ディレクトリを、対応するPluginの `skills/` へ無変換で複製します。
+また、2つのCodex manifestのversionを `package.json` に合わせます。
 どちらかの原本が空の場合は生成先を削除せず失敗し、差分がない場合はcommitしません。
-差分がある場合だけ、Claude manifestと2つのPlugin生成物を `chore: sync Codex and Cursor plugins` として `master` へcommitします。
+差分がある場合だけ、2つのPlugin生成物を `chore: sync Codex and Cursor plugins` として `master` へcommitします。
 
 ## 定期実行
 

@@ -1,12 +1,4 @@
 {
   "name": "productivity",
-  "version": "1.2.3",
-  "description": "Matt PocockのProductivity Agent SkillsをCursorで利用するためのプラグインです。",
-  "author": {
-    "name": "masatoh-array"
-  },
-  "repository": "https://github.com/masatoh-array/mattpocock-skills-plugin",
-  "homepage": "https://github.com/mattpocock/skills",
-  "license": "MIT",
   "skills": "./skills/"
 }
